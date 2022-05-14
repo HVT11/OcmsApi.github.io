@@ -4,8 +4,10 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 
-from OcmsApp.models import Accounts, Classes, Teachers, Students
-from OcmsApp.serializers import AccountSerializer, TeacherSerializer, ClassSerializer, StudentSerializer
+from OcmsApp.models import Accounts, Attendance, Classes, ListAttendance, Teachers, Students
+from OcmsApp.serializers import AccountSerializer, AttendanceSerializer, ListAttendanceSerializer, TeacherSerializer, ClassSerializer, StudentSerializer
+
+from django.core.files.storage import default_storage
 
 # Create your views here.
 @csrf_exempt
@@ -113,3 +115,65 @@ def StudentApi(request, id=0):
         students = Students.objects.get(StudentID = id)
         students.delete()
         return JsonResponse('Delete successfully',safe= False)
+
+@csrf_exempt
+def ListAttendanceApi(request, id=0):
+    if request.method == 'GET':
+        listAttendances = ListAttendance.objects.all()
+        listAttendances_serializer = ListAttendanceSerializer(listAttendances, many = True)
+        return JsonResponse(listAttendances_serializer.data, safe = False)
+    elif request.method == 'POST':
+        listAttendance_data = JSONParser().parse(request)
+        listAttendances_serializer = ListAttendanceSerializer(data=listAttendance_data)
+        if listAttendances_serializer.is_valid():
+            listAttendances_serializer.save()
+            return JsonResponse('Added to successfully', safe = False)
+        return JsonResponse('Failed to add', safe=False)
+    elif request.method == 'PUT':
+        listAttendance_data = JSONParser().parse(request)
+        listAttendances = ListAttendance.objects.get(ListAttendanceID = listAttendance_data['ListAttendanceID'])
+        listAttendances_serializer = ListAttendanceSerializer(listAttendances, data=listAttendance_data)
+        if listAttendances_serializer.is_valid():
+            listAttendances_serializer.save()
+            return JsonResponse('Updated to successfully', safe=False)
+        return JsonResponse('Failed to update', safe=False)
+    elif request.method == 'DELETE':
+        listAttendances = ListAttendance.objects.get(ListAttendanceID = id)
+        listAttendances.delete()
+        return JsonResponse('Delete successfully',safe= False)
+
+@csrf_exempt
+def AttendanceApi(request, id=0):
+    if request.method == 'GET':
+        attendances = Attendance.objects.all()
+        attendance_serializer = AttendanceSerializer(attendances, many = True)
+        return JsonResponse(attendance_serializer.data, safe = False)
+    elif request.method == 'POST':
+        attendace_data = JSONParser().parse(request)
+        attendance_serializer = AttendanceSerializer(data=attendace_data)
+        if attendance_serializer.is_valid():
+            attendance_serializer.save()
+            return JsonResponse('Added to successfully', safe = False)
+        return JsonResponse('Failed to add', safe=False)
+    elif request.method == 'PUT':
+        attendace_data = JSONParser().parse(request)
+        attendances = Attendance.objects.get(AttendanceID = attendace_data['AttendanceID'])
+        attendance_serializer = AttendanceSerializer(attendances, data=attendace_data)
+        if attendance_serializer.is_valid():
+            attendance_serializer.save()
+            return JsonResponse('Updated to successfully', safe=False)
+        return JsonResponse('Failed to update', safe=False)
+    elif request.method == 'DELETE':
+        attendances = Attendance.objects.get(AttendanceID = id)
+        attendances.delete()
+        return JsonResponse('Delete successfully',safe= False)
+
+
+@csrf_exempt
+def SaveFile(request):
+    file = request.FILES['file']
+    file_name = default_storage.save(file.name, file)
+    return JsonResponse(file_name, safe=False)
+
+
+

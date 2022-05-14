@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 from django.db import models
 from psycopg2 import Date
 
@@ -11,12 +11,13 @@ class Accounts(models.Model):
     Type = models.CharField(max_length=1)
     DateCreate = models.DateField(auto_now=True)
 
+
 class Teachers(models.Model):
     TeacherID = models.AutoField(primary_key=True)
     Name = models.CharField(max_length=500, null=True)
     Email = models.CharField(max_length=300, null=True)
     Phone = models.CharField(max_length=300, null=True)
-    Avatar = models.CharField(max_length=300, null=True)
+    Avatar = models.ImageField(null=True)
     Username = models.CharField(max_length=300)
 
 class Students(models.Model):
@@ -38,4 +39,18 @@ class Classes(models.Model):
     TotalStu = models.CharField(max_length=300, null=True)
     DateCreate = models.DateField(auto_now=True)
     TeacherID = models.IntegerField()
+
+class ListAttendance(models.Model):
+    ListAttendanceID = models.AutoField(primary_key=True)
+    Date = models.DateField(auto_now= True)
+    Time = models.TimeField(auto_now= True)
+    Total = models.IntegerField(null= True)
+    ClassID = models.IntegerField()
+
+class Attendance(models.Model):
+    AttendanceID = models.AutoField(primary_key=True)
+    Status = models.BooleanField(default=False)
+    Note = models.CharField(max_length=300, null=True)
+    Username = models.CharField(max_length=300)
+    ListAttendanceID = models.IntegerField()
     
